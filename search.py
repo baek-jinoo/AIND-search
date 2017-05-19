@@ -84,7 +84,25 @@ def depthFirstSearch(problem):
   print "Start's successors:", problem.getSuccessors(problem.getStartState())
   """
   "*** YOUR CODE HERE ***"
-  util.raiseNotDefined()
+  #explored = {}
+  pqueue = util.PriorityQueue()
+  initial_state = problem.getStartState()
+  pqueue.push(initial_state, 0)
+  while True:
+      if pqueue.isEmpty():
+          return None
+      #get the next frontier
+      #remove from frontier
+      #goal check
+      #add node to explored
+      #expand and add those to frontier if they are not part of frontier or explored
+
+
+  print problem.getSuccessors(initial_state)
+  print "bla"
+  print initial_state
+  #frontier = {initial_state}
+  #util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
   """

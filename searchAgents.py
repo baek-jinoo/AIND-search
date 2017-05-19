@@ -23,6 +23,8 @@ Look for the lines that say
 
 "*** YOUR CODE HERE ***"
 
+	<key>LLBuildAccount</key>
+	<string>jin</string>
 The parts you fill in start about 3/4 of the way down.  Follow the
 project description for details.
 
