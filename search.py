@@ -12,6 +12,85 @@ by Pacman agents (in searchAgents.py).
 """
 
 import util
+import pdb
+
+class Node:
+    def __init__(self, state, action, cost, parent=None):
+        self._action = action
+        self._cost = cost
+        self._parent = parent
+        self._state = state
+
+    @property
+    def action(self):
+        return self._action
+
+    @property
+    def cost(self):
+        return self._cost
+
+    @property
+    def parent(self):
+        return self._parent
+
+    @property
+    def state(self):
+        return self._state
+
+    def actions(self):
+        previous_actions = []
+        if self._parent != None:
+            previous_actions.extend(self._parent.actions())
+        if self._action != None:
+            previous_actions.append(self._action)
+        return previous_actions
+
+    def __eq__(self, other):
+        return (isinstance(other, type(self))
+                                and (self._action, self._state, self._cost) ==
+                                    (other._action, other._state, other._cost))
+
+    def __hash__(self):
+        return hash((self._action, self._state, self._cost))
+
+class SearchAlgorithm:
+
+    def depthFirstSearch(self, problem):
+        """
+        Search problem instance
+
+        Returns
+            List
+        """
+        frontier_queue = util.PriorityQueue()
+        frontier_dictionary = {}
+        explored_dictionary = {}
+
+        initial_state = problem.getStartState()
+        initial_node = Node(initial_state, None, 0)
+
+        frontier_queue.push(initial_node, initial_node.cost)
+        frontier_dictionary[initial_node] = initial_node
+        while True:
+            if frontier_queue.isEmpty():
+                return []
+            #get the next frontier
+            #remove from frontier
+            chosen_frontier_node = frontier_queue.pop()
+            frontier_dictionary.pop(chosen_frontier_node, 0)
+            #goal check
+            if problem.isGoalState(chosen_frontier_node.state):
+                return chosen_frontier_node.actions()
+            #add node to explored
+            explored_dictionary[chosen_frontier_node] = chosen_frontier_node
+            #expand and add those to frontier if they are not part of frontier or explored
+            for expanded_triple in problem.getSuccessors(chosen_frontier_node.state):
+                accumulated_cost = chosen_frontier_node.cost + expanded_triple[2]
+                expanded_node = Node(expanded_triple[0], expanded_triple[1], accumulated_cost, chosen_frontier_node)
+
+                if expanded_node not in explored_dictionary and expanded_node not in frontier_dictionary:
+                    frontier_queue.push(expanded_node, expanded_node.cost)
+                    frontier_dictionary[expanded_node] = expanded_node
 
 class SearchProblem:
   """
@@ -84,25 +163,8 @@ def depthFirstSearch(problem):
   print "Start's successors:", problem.getSuccessors(problem.getStartState())
   """
   "*** YOUR CODE HERE ***"
-  #explored = {}
-  pqueue = util.PriorityQueue()
-  initial_state = problem.getStartState()
-  pqueue.push(initial_state, 0)
-  while True:
-      if pqueue.isEmpty():
-          return None
-      #get the next frontier
-      #remove from frontier
-      #goal check
-      #add node to explored
-      #expand and add those to frontier if they are not part of frontier or explored
-
-
-  print problem.getSuccessors(initial_state)
-  print "bla"
-  print initial_state
-  #frontier = {initial_state}
-  #util.raiseNotDefined()
+  searchAlgorithm = SearchAlgorithm()
+  return searchAlgorithm.depthFirstSearch(problem) 
 
 def breadthFirstSearch(problem):
   """
