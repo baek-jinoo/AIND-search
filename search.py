@@ -79,8 +79,6 @@ class SearchAlgorithm:
             #remove from frontier
             c_frontier_node = frontier_q.pop()
             frontier_dict.pop(c_frontier_node, 0)
-            if c_frontier_node.state == (5, 3):
-                pdb.set_trace()
             #goal check
             if problem.isGoalState(c_frontier_node.state):
                 return c_frontier_node.actions()
