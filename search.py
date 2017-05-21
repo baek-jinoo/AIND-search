@@ -84,23 +84,21 @@ class SearchAlgorithm:
                     frontier_q.push(expanded_node, float(len(expanded_node.actions())))
                     frontier_dict[expanded_node] = expanded_node
 
-
-    def depthFirstSearchStack(self, problem):
-        frontier_stack = util.Stack()
+    def depthFirstSearchGeneric(self, problem, frontier_collection):
         frontier_dict = {}
         explored_dict = {}
 
         initial_state = problem.getStartState()
         initial_node = Node(initial_state, None, 0)
 
-        frontier_stack.push(initial_node)
+        frontier_collection.push(initial_node)
         frontier_dict[initial_node] = initial_node
         while True:
-            if frontier_stack.isEmpty():
+            if frontier_collection.isEmpty():
                 return []
             #get the next frontier
             #remove from frontier
-            c_frontier_node = frontier_stack.pop()
+            c_frontier_node = frontier_collection.pop()
             frontier_dict.pop(c_frontier_node, 0)
             #goal check
             if problem.isGoalState(c_frontier_node.state):
@@ -113,8 +111,12 @@ class SearchAlgorithm:
                 expanded_node = Node(expanded_triple[0], expanded_triple[1], accumulated_cost, c_frontier_node)
 
                 if expanded_node not in explored_dict and expanded_node not in frontier_dict:
-                    frontier_stack.push(expanded_node)
+                    frontier_collection.push(expanded_node)
                     frontier_dict[expanded_node] = expanded_node
+
+
+    def depthFirstSearchStack(self, problem):
+        self.depthFirstSearchGeneric(problem, util.Stack())
 
     def depthFirstSearchPriorityQueue(self, problem):
         """
@@ -125,34 +127,7 @@ class SearchAlgorithm:
         """
         priorityQueueFunction = lambda item: -1. * len(item.actions())
         frontier_q = util.PriorityQueueWithFunction(priorityQueueFunction)
-        frontier_dict = {}
-        explored_dict = {}
-
-        initial_state = problem.getStartState()
-        initial_node = Node(initial_state, None, 0)
-
-        frontier_q.push(initial_node)
-        frontier_dict[initial_node] = initial_node
-        while True:
-            if frontier_q.isEmpty():
-                return []
-            #get the next frontier
-            #remove from frontier
-            c_frontier_node = frontier_q.pop()
-            frontier_dict.pop(c_frontier_node, 0)
-            #goal check
-            if problem.isGoalState(c_frontier_node.state):
-                return c_frontier_node.actions()
-            #add node to explored
-            explored_dict[c_frontier_node] = c_frontier_node
-            #expand and add those to frontier if they are not part of frontier or explored
-            for expanded_triple in problem.getSuccessors(c_frontier_node.state):
-                accumulated_cost = c_frontier_node.cost + expanded_triple[2]
-                expanded_node = Node(expanded_triple[0], expanded_triple[1], accumulated_cost, c_frontier_node)
-
-                if expanded_node not in explored_dict and expanded_node not in frontier_dict:
-                    frontier_q.push(expanded_node)
-                    frontier_dict[expanded_node] = expanded_node
+        return self.depthFirstSearchGeneric(problem, frontier_q)
 
 class SearchProblem:
   """
