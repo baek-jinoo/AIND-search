@@ -123,14 +123,15 @@ class SearchAlgorithm:
         Returns
             List
         """
-        frontier_q = util.PriorityQueue()
+        priorityQueueFunction = lambda item: -1. * len(item.actions())
+        frontier_q = util.PriorityQueueWithFunction(priorityQueueFunction)
         frontier_dict = {}
         explored_dict = {}
 
         initial_state = problem.getStartState()
         initial_node = Node(initial_state, None, 0)
 
-        frontier_q.push(initial_node, -1. * len(initial_node.actions()))
+        frontier_q.push(initial_node)
         frontier_dict[initial_node] = initial_node
         while True:
             if frontier_q.isEmpty():
@@ -150,7 +151,7 @@ class SearchAlgorithm:
                 expanded_node = Node(expanded_triple[0], expanded_triple[1], accumulated_cost, c_frontier_node)
 
                 if expanded_node not in explored_dict and expanded_node not in frontier_dict:
-                    frontier_q.push(expanded_node, -1. * len(expanded_node.actions()))
+                    frontier_q.push(expanded_node)
                     frontier_dict[expanded_node] = expanded_node
 
 class SearchProblem:
@@ -225,8 +226,8 @@ def depthFirstSearch(problem):
   """
   "*** YOUR CODE HERE ***"
   searchAlgorithm = SearchAlgorithm()
-  return searchAlgorithm.depthFirstSearchStack(problem)
-  #return searchAlgorithm.depthFirstSearchPriorityQueue(problem) 
+  #return searchAlgorithm.depthFirstSearchStack(problem)
+  return searchAlgorithm.depthFirstSearchPriorityQueue(problem) 
 
 def breadthFirstSearch(problem):
   """
