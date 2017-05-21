@@ -47,13 +47,14 @@ class Node:
 
     def __eq__(self, other):
         return (isinstance(other, type(self))
-                                and (self._action, self._state, self._cost) ==
-                                    (other._action, other._state, other._cost))
+                                and self._state == other._state)
 
     def __hash__(self):
-        return hash((self._action, self._state, self._cost))
+        return hash(self._state)
 
 class SearchAlgorithm:
+    def breadthFirstSearch(self, problem):
+        return []
 
     def depthFirstSearch(self, problem):
         """
@@ -62,35 +63,37 @@ class SearchAlgorithm:
         Returns
             List
         """
-        frontier_queue = util.PriorityQueue()
-        frontier_dictionary = {}
-        explored_dictionary = {}
+        frontier_q = util.PriorityQueue()
+        frontier_dict = {}
+        explored_dict = {}
 
         initial_state = problem.getStartState()
         initial_node = Node(initial_state, None, 0)
 
-        frontier_queue.push(initial_node, initial_node.cost)
-        frontier_dictionary[initial_node] = initial_node
+        frontier_q.push(initial_node, -1. * len(initial_node.actions()))
+        frontier_dict[initial_node] = initial_node
         while True:
-            if frontier_queue.isEmpty():
+            if frontier_q.isEmpty():
                 return []
             #get the next frontier
             #remove from frontier
-            chosen_frontier_node = frontier_queue.pop()
-            frontier_dictionary.pop(chosen_frontier_node, 0)
+            c_frontier_node = frontier_q.pop()
+            frontier_dict.pop(c_frontier_node, 0)
+            if c_frontier_node.state == (5, 3):
+                pdb.set_trace()
             #goal check
-            if problem.isGoalState(chosen_frontier_node.state):
-                return chosen_frontier_node.actions()
+            if problem.isGoalState(c_frontier_node.state):
+                return c_frontier_node.actions()
             #add node to explored
-            explored_dictionary[chosen_frontier_node] = chosen_frontier_node
+            explored_dict[c_frontier_node] = c_frontier_node
             #expand and add those to frontier if they are not part of frontier or explored
-            for expanded_triple in problem.getSuccessors(chosen_frontier_node.state):
-                accumulated_cost = chosen_frontier_node.cost + expanded_triple[2]
-                expanded_node = Node(expanded_triple[0], expanded_triple[1], accumulated_cost, chosen_frontier_node)
+            for expanded_triple in problem.getSuccessors(c_frontier_node.state):
+                accumulated_cost = c_frontier_node.cost + expanded_triple[2]
+                expanded_node = Node(expanded_triple[0], expanded_triple[1], accumulated_cost, c_frontier_node)
 
-                if expanded_node not in explored_dictionary and expanded_node not in frontier_dictionary:
-                    frontier_queue.push(expanded_node, expanded_node.cost)
-                    frontier_dictionary[expanded_node] = expanded_node
+                if expanded_node not in explored_dict and expanded_node not in frontier_dict:
+                    frontier_q.push(expanded_node, -1. * len(expanded_node.actions()))
+                    frontier_dict[expanded_node] = expanded_node
 
 class SearchProblem:
   """
@@ -172,7 +175,9 @@ def breadthFirstSearch(problem):
   [2nd Edition: p 73, 3rd Edition: p 82]
   """
   "*** YOUR CODE HERE ***"
-  util.raiseNotDefined()
+  searchAlgorithm = SearchAlgorithm()
+  return searchAlgorithm.breadthFirstSearch(problem) 
+
       
 def uniformCostSearch(problem):
   "Search the node of least total cost first. "
