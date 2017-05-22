@@ -84,19 +84,23 @@ class SearchAlgorithm:
                     frontier_dict[expanded_node] = expanded_node
 
     def uniformCostSearch(self, problem):
+        #TODO add doc
         priorityQueueFunction = lambda item: item.cost
         frontier_q = util.PriorityQueueWithFunction(priorityQueueFunction)
         return self.graphSearchGeneric(problem, frontier_q)
 
     def breadthFirstSearch(self, problem):
+        #TODO add doc
         priorityQueueFunction = lambda item: len(item.actions())
         frontier_q = util.PriorityQueueWithFunction(priorityQueueFunction)
         return self.graphSearchGeneric(problem, frontier_q)
 
     def depthFirstSearchStack(self, problem):
+        #TODO add doc
         return self.graphSearchGeneric(problem, util.Stack())
 
     def depthFirstSearchPriorityQueue(self, problem):
+        #TODO finish doc
         """
         Search problem instance
 
