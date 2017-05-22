@@ -53,11 +53,6 @@ class Node:
         return hash(self._state)
 
 class SearchAlgorithm:
-    def breadthFirstSearch(self, problem):
-        priorityQueueFunction = lambda item: len(item.actions())
-        frontier_q = util.PriorityQueueWithFunction(priorityQueueFunction)
-        return self.graphSearchGeneric(problem, frontier_q)
-
     def graphSearchGeneric(self, problem, frontier_collection):
         frontier_dict = {}
         explored_dict = {}
@@ -88,6 +83,15 @@ class SearchAlgorithm:
                     frontier_collection.push(expanded_node)
                     frontier_dict[expanded_node] = expanded_node
 
+    def uniformCostSearch(self, problem):
+        priorityQueueFunction = lambda item: item.cost
+        frontier_q = util.PriorityQueueWithFunction(priorityQueueFunction)
+        return self.graphSearchGeneric(problem, frontier_q)
+
+    def breadthFirstSearch(self, problem):
+        priorityQueueFunction = lambda item: len(item.actions())
+        frontier_q = util.PriorityQueueWithFunction(priorityQueueFunction)
+        return self.graphSearchGeneric(problem, frontier_q)
 
     def depthFirstSearchStack(self, problem):
         return self.graphSearchGeneric(problem, util.Stack())
@@ -191,7 +195,9 @@ def breadthFirstSearch(problem):
 def uniformCostSearch(problem):
   "Search the node of least total cost first. "
   "*** YOUR CODE HERE ***"
-  util.raiseNotDefined()
+  searchAlgorithm = SearchAlgorithm()
+  #return searchAlgorithm.breadthFirstSearch(problem) 
+  return searchAlgorithm.uniformCostSearch(problem) 
 
 def nullHeuristic(state, problem=None):
   """
