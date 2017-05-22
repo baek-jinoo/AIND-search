@@ -82,6 +82,11 @@ class SearchAlgorithm:
                 if expanded_node not in explored_dict and expanded_node not in frontier_dict:
                     frontier_collection.push(expanded_node)
                     frontier_dict[expanded_node] = expanded_node
+    def aStarSearch(self, problem, heuristic):
+        #TODO add doc
+        priorityQueueFunction = lambda item: heuristic(item.state, problem)
+        frontier_q = util.PriorityQueueWithFunction(priorityQueueFunction)
+        return self.graphSearchGeneric(problem, frontier_q)
 
     def uniformCostSearch(self, problem):
         #TODO add doc
@@ -200,7 +205,6 @@ def uniformCostSearch(problem):
   "Search the node of least total cost first. "
   "*** YOUR CODE HERE ***"
   searchAlgorithm = SearchAlgorithm()
-  #return searchAlgorithm.breadthFirstSearch(problem) 
   return searchAlgorithm.uniformCostSearch(problem) 
 
 def nullHeuristic(state, problem=None):
@@ -212,8 +216,8 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
   "Search the node that has the lowest combined cost and heuristic first."
-  "*** YOUR CODE HERE ***"
-  util.raiseNotDefined()
+  searchAlgorithm = SearchAlgorithm()
+  return searchAlgorithm.aStarSearch(problem, heuristic) 
     
   
 # Abbreviations
