@@ -116,7 +116,7 @@ class SearchAlgorithm:
 
 
     def depthFirstSearchStack(self, problem):
-        self.depthFirstSearchGeneric(problem, util.Stack())
+        return self.depthFirstSearchGeneric(problem, util.Stack())
 
     def depthFirstSearchPriorityQueue(self, problem):
         """
@@ -201,8 +201,8 @@ def depthFirstSearch(problem):
   """
   "*** YOUR CODE HERE ***"
   searchAlgorithm = SearchAlgorithm()
-  #return searchAlgorithm.depthFirstSearchStack(problem)
-  return searchAlgorithm.depthFirstSearchPriorityQueue(problem) 
+  return searchAlgorithm.depthFirstSearchStack(problem)
+  #return searchAlgorithm.depthFirstSearchPriorityQueue(problem) 
 
 def breadthFirstSearch(problem):
   """
