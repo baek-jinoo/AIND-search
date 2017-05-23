@@ -293,9 +293,9 @@ class CornersProblem(search.SearchProblem):
     
   def isGoalState(self, state):
     "Returns whether this search state is a goal state of the problem"
-    visited_corners = list(state[1])
+    visitedCorners = list(state[1])
 
-    isGoal = len(visited_corners) == len(self.corners)
+    isGoal = len(visitedCorners) == len(self.corners)
     if isGoal:
         self._visitedlist.append(state[0])
         import __main__
@@ -320,16 +320,16 @@ class CornersProblem(search.SearchProblem):
     successors = []
     for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
       x, y = state[0]
-      visited_corners = list(state[1])
+      visitedCorners = list(state[1])
 
       dx, dy = Actions.directionToVector(action)
       nextx, nexty = int(x + dx), int(y + dy)
       nextxy = (nextx, nexty)
 
       if not self.walls[nextx][nexty]:
-          if nextxy not in visited_corners and nextxy in self.cornersDict:
-              visited_corners.append(nextxy)
-          nextState = (nextxy, tuple(visited_corners))
+          if nextxy not in visitedCorners and nextxy in self.cornersDict:
+              visitedCorners.append(nextxy)
+          nextState = (nextxy, tuple(visitedCorners))
           cost = 1
           successors.append( ( nextState, action, cost) )
         
@@ -356,23 +356,47 @@ class CornersProblem(search.SearchProblem):
 
 
 def cornersHeuristic(state, problem):
-  """
-  A heuristic for the CornersProblem that you defined.
-  
-    state:   The current search state 
-             (a data structure you chose in your search problem)
+    """
+    A heuristic for the CornersProblem that you defined.
     
-    problem: The CornersProblem instance for this layout.  
-    
-  This function should always return a number that is a lower bound
-  on the shortest path from the state to a goal of the problem; i.e.
-  it should be admissible (as well as consistent).
-  """
-  corners = problem.corners # These are the corner coordinates
-  walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
-  
-  "*** YOUR CODE HERE ***"
-  return 0 # Default to trivial solution
+      state:   The current search state 
+               (a data structure you chose in your search problem)
+      
+      problem: The CornersProblem instance for this layout.  
+      
+    This function should always return a number that is a lower bound
+    on the shortest path from the state to a goal of the problem; i.e.
+    it should be admissible (as well as consistent).
+    """
+    startingPosition = problem.startingPosition
+    corners = problem.corners # These are the corner coordinates
+    walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
+    currentPosition = state[0]
+
+    visitedCorners = state[1]
+    remainingCorners = list([remainingCorner for remainingCorner in corners if remainingCorner not in visitedCorners])
+
+    totalHeuristic = 0
+    while len(remainingCorners) > 0:
+        remainingCorners, currentPosition, minimumDistance = findClosestCorner(remainingCorners, currentPosition)
+        totalHeuristic += minimumDistance
+
+    return totalHeuristic
+
+def findClosestCorner(remainingCorners, currentPosition):
+    minimumDistance = float("inf")
+    indexToDelete = 0
+    closestCorner = remainingCorners[indexToDelete]
+    for index, corner in enumerate(remainingCorners):
+        tempDistance = util.manhattanDistance(currentPosition, corner)
+        if tempDistance < minimumDistance:
+            closestCorner = corner
+            minimumDistance = tempDistance
+            indexToDelete = index
+    del remainingCorners[indexToDelete]
+
+    return remainingCorners, closestCorner, minimumDistance
+
 
 class AStarCornersAgent(SearchAgent):
   "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
