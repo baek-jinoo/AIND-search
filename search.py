@@ -14,12 +14,20 @@ by Pacman agents (in searchAgents.py).
 import util
 import pdb
 
+def nullHeuristic(state, problem=None):
+  """
+  A heuristic function estimates the cost from the current state to the nearest
+  goal in the provided SearchProblem.  This heuristic is trivial.
+  """
+  return 0
+
 class Node:
-    def __init__(self, state, action, cost, parent=None):
+    def __init__(self, state, action, cost, parent=None, heuristicCost=0.):
         self._action = action
         self._cost = cost
         self._parent = parent
         self._state = state
+        self._heuristicCost = heuristicCost
 
     @property
     def action(self):
@@ -28,6 +36,10 @@ class Node:
     @property
     def cost(self):
         return self._cost
+
+    @property
+    def c_and_h(self):
+        return self._cost + self._heuristicCost
 
     @property
     def parent(self):
@@ -54,41 +66,38 @@ class Node:
 
 class SearchAlgorithm:
 
-    def graphSearchGeneric(self, problem, frontier_collection):
-        frontier_dict = {}
+    def graphSearchGeneric(self, problem, frontier_collection,
+                            heuristicFn=nullHeuristic):
         explored_dict = {}
 
         initial_state = problem.getStartState()
-        initial_node = Node(initial_state, None, 0)
+        initial_node = Node(initial_state, None, 0, None,
+                            heuristicFn(initial_state, problem))
 
         frontier_collection.push(initial_node)
-        frontier_dict[initial_node] = initial_node
         while True:
             if frontier_collection.isEmpty():
                 return []
-            #get the next frontier
-            #remove from frontier
+
             c_frontier_node = frontier_collection.pop()
-            frontier_dict.pop(c_frontier_node, 0)
-            #goal check
+
             if problem.isGoalState(c_frontier_node.state):
                 return c_frontier_node.actions()
-            #add node to explored
-            explored_dict[c_frontier_node] = True
-            #expand and add those to frontier if they are not part of frontier or explored
-            for expanded_triple in problem.getSuccessors(c_frontier_node.state):
-                accumulated_cost = c_frontier_node.cost + expanded_triple[2]
-                expanded_node = Node(expanded_triple[0], expanded_triple[1], accumulated_cost, c_frontier_node)
+            if c_frontier_node not in explored_dict:
+                explored_dict[c_frontier_node] = True
+                for expanded_triple in problem.getSuccessors(c_frontier_node.state):
+                    accumulated_cost = c_frontier_node.cost + expanded_triple[2]
 
-                if expanded_node not in explored_dict and expanded_node not in frontier_dict:
+                    expanded_node = Node(expanded_triple[0], expanded_triple[1],
+                                         accumulated_cost, c_frontier_node,
+                                         heuristicFn(expanded_triple[0], problem))
                     frontier_collection.push(expanded_node)
-                    frontier_dict[expanded_node] = expanded_node
 
     def aStarSearch(self, problem, heuristic):
         #TODO add doc
-        priorityQueueFunction = lambda item: item.cost + heuristic(item.state, problem)
+        priorityQueueFunction = lambda item: item.c_and_h
         frontier_q = util.PriorityQueueWithFunction(priorityQueueFunction)
-        return self.graphSearchGeneric(problem, frontier_q)
+        return self.graphSearchGeneric(problem, frontier_q, heuristic)
 
     def uniformCostSearch(self, problem):
         #TODO add doc
@@ -98,25 +107,11 @@ class SearchAlgorithm:
 
     def breadthFirstSearch(self, problem):
         #TODO add doc
-        priorityQueueFunction = lambda item: len(item.actions())
-        frontier_q = util.PriorityQueueWithFunction(priorityQueueFunction)
-        return self.graphSearchGeneric(problem, frontier_q)
+        return self.graphSearchGeneric(problem, util.Queue())
 
-    def depthFirstSearchStack(self, problem):
+    def depthFirstSearch(self, problem):
         #TODO add doc
         return self.graphSearchGeneric(problem, util.Stack())
-
-    def depthFirstSearchPriorityQueue(self, problem):
-        #TODO finish doc
-        """
-        Search problem instance
-
-        Returns
-            List
-        """
-        priorityQueueFunction = lambda item: -1. * len(item.actions())
-        frontier_q = util.PriorityQueueWithFunction(priorityQueueFunction)
-        return self.graphSearchGeneric(problem, frontier_q)
 
 class SearchProblem:
   """
@@ -190,8 +185,7 @@ def depthFirstSearch(problem):
   """
   "*** YOUR CODE HERE ***"
   searchAlgorithm = SearchAlgorithm()
-  return searchAlgorithm.depthFirstSearchStack(problem)
-  #return searchAlgorithm.depthFirstSearchPriorityQueue(problem) 
+  return searchAlgorithm.depthFirstSearch(problem)
 
 def breadthFirstSearch(problem):
   """
@@ -208,13 +202,6 @@ def uniformCostSearch(problem):
   "*** YOUR CODE HERE ***"
   searchAlgorithm = SearchAlgorithm()
   return searchAlgorithm.uniformCostSearch(problem) 
-
-def nullHeuristic(state, problem=None):
-  """
-  A heuristic function estimates the cost from the current state to the nearest
-  goal in the provided SearchProblem.  This heuristic is trivial.
-  """
-  return 0
 
 def aStarSearch(problem, heuristic=nullHeuristic):
   "Search the node that has the lowest combined cost and heuristic first."
