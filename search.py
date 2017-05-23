@@ -86,7 +86,7 @@ class SearchAlgorithm:
 
     def aStarSearch(self, problem, heuristic):
         #TODO add doc
-        priorityQueueFunction = lambda item: heuristic(item.state, problem)
+        priorityQueueFunction = lambda item: item.cost + heuristic(item.state, problem)
         frontier_q = util.PriorityQueueWithFunction(priorityQueueFunction)
         return self.graphSearchGeneric(problem, frontier_q)
 
