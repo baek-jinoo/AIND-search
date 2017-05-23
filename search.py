@@ -53,6 +53,7 @@ class Node:
         return hash(self._state)
 
 class SearchAlgorithm:
+
     def graphSearchGeneric(self, problem, frontier_collection):
         frontier_dict = {}
         explored_dict = {}
@@ -82,6 +83,7 @@ class SearchAlgorithm:
                 if expanded_node not in explored_dict and expanded_node not in frontier_dict:
                     frontier_collection.push(expanded_node)
                     frontier_dict[expanded_node] = expanded_node
+
     def aStarSearch(self, problem, heuristic):
         #TODO add doc
         priorityQueueFunction = lambda item: heuristic(item.state, problem)
