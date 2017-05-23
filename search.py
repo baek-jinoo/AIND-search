@@ -74,7 +74,7 @@ class SearchAlgorithm:
             if problem.isGoalState(c_frontier_node.state):
                 return c_frontier_node.actions()
             #add node to explored
-            explored_dict[c_frontier_node] = c_frontier_node
+            explored_dict[c_frontier_node] = True
             #expand and add those to frontier if they are not part of frontier or explored
             for expanded_triple in problem.getSuccessors(c_frontier_node.state):
                 accumulated_cost = c_frontier_node.cost + expanded_triple[2]
