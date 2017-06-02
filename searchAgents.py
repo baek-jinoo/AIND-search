@@ -37,6 +37,7 @@ import util
 import time
 import search
 import searchAgents
+import sys
 import pdb
 
 class GoWestAgent(Agent):
@@ -453,35 +454,116 @@ class AStarFoodSearchAgent(SearchAgent):
     self.searchFunction = lambda prob: search.aStarSearch(prob, foodHeuristic)
     self.searchType = FoodSearchProblem
 
+computedDictKey = 'precomputedDict'
+
 def foodHeuristic(state, problem):
-  """
-  Your heuristic for the FoodSearchProblem goes here.
+    """
+    Your heuristic for the FoodSearchProblem goes here.
+    
+    This heuristic must be consistent to ensure correctness.  First, try to come up
+    with an admissible heuristic; almost all admissible heuristics will be consistent
+    as well.
+    
+    If using A* ever finds a solution that is worse uniform cost search finds,
+    your heuristic is *not* consistent, and probably not admissible!  On the other hand,
+    inadmissible or inconsistent heuristics may find optimal solutions, so be careful.
+    
+    The state is a tuple ( pacmanPosition, foodGrid ) where foodGrid is a 
+    Grid (see game.py) of either True or False. You can call foodGrid.asList()
+    to get a list of food coordinates instead.
+    
+    If you want access to info like walls, capsules, etc., you can query the problem.
+    For example, problem.walls gives you a Grid of where the walls are.
+    
+    If you want to *store* information to be reused in other calls to the heuristic,
+    there is a dictionary called problem.heuristicInfo that you can use. For example,
+    if you only want to count the walls once and store that value, try:
+      problem.heuristicInfo['wallCount'] = problem.walls.count()
+    Subsequent calls to this heuristic can access problem.heuristicInfo['wallCount']
+    """
+    position, foodGrid = state
+
+    # find the closest remaining food
+    remainingFoods = foodGrid.asList()
+
+    if len(remainingFoods) == 0:
+        return 0.
+
+    distanceToClosestFood = float("inf")
+    closestFood = (-1, -1)
+    for remainingFood in remainingFoods:
+        tempDistance = util.manhattanDistance(position, remainingFood)
+        if tempDistance < distanceToClosestFood:
+            distanceToClosestFood = tempDistance
+            closestFood = remainingFood
+
+    if len(remainingFoods) == 1:
+        return float(distanceToClosestFood)
   
-  This heuristic must be consistent to ensure correctness.  First, try to come up
-  with an admissible heuristic; almost all admissible heuristics will be consistent
-  as well.
-  
-  If using A* ever finds a solution that is worse uniform cost search finds,
-  your heuristic is *not* consistent, and probably not admissible!  On the other hand,
-  inadmissible or inconsistent heuristics may find optimal solutions, so be careful.
-  
-  The state is a tuple ( pacmanPosition, foodGrid ) where foodGrid is a 
-  Grid (see game.py) of either True or False. You can call foodGrid.asList()
-  to get a list of food coordinates instead.
-  
-  If you want access to info like walls, capsules, etc., you can query the problem.
-  For example, problem.walls gives you a Grid of where the walls are.
-  
-  If you want to *store* information to be reused in other calls to the heuristic,
-  there is a dictionary called problem.heuristicInfo that you can use. For example,
-  if you only want to count the walls once and store that value, try:
-    problem.heuristicInfo['wallCount'] = problem.walls.count()
-  Subsequent calls to this heuristic can access problem.heuristicInfo['wallCount']
-  """
-  position, foodGrid = state
-  "*** YOUR CODE HERE ***"
-  return 0
-  
+    remainingFoods.remove(closestFood)
+    remainingFoodsTuple = tuple(remainingFoods)
+
+    shortestPathCost = 0.
+
+    if computedDictKey not in problem.heuristicInfo:
+        computedDict = dict()
+        shortestPathCost = computeShortestPathCostAndCache(problem,
+                                                           closestFood,
+                                                           remainingFoods,
+                                                           remainingFoodsTuple,
+                                                           computedDict)
+    # Check if the precomputed shortest path cost for all foods exist
+    else:
+        computedDict = problem.heuristicInfo[computedDictKey]
+        if (closestFood, remainingFoodsTuple) in computedDict:
+            shortestPathCost = computedDict[(closestFood, remainingFoodsTuple)]
+        else:
+            shortestPathCost = computeShortestPathCostAndCache(problem,
+                                                               closestFood,
+                                                               remainingFoods,
+                                                               remainingFoodsTuple,
+                                                               computedDict)
+
+    return float(shortestPathCost) + float(distanceToClosestFood)
+
+def computeShortestPathCostAndCache(problem,
+                                    closestFood,
+                                    remainingFoods,
+                                    remainingFoodsTuple,
+                                    computedDict):
+    #TODO add doc
+    path, shortestPathCost = greedyAlgorithm(closestFood, remainingFoods)
+    computedDict[(closestFood, remainingFoodsTuple)] = shortestPathCost
+    problem.heuristicInfo[computedDictKey] = computedDict
+    return shortestPathCost
+
+def greedyAlgorithm(start, otherVertexes):
+    #TODO add doc
+
+    numOfVertexes = len(otherVertexes) + 1
+    currentVertex = start
+    path = [start]
+    totalCost = 0.
+
+    while True:
+        if len(path) == numOfVertexes:
+            totalCost += util.manhattanDistance(currentVertex, start)
+            path.append(start)
+            return (path, totalCost)
+
+        leastDistance = sys.maxint
+        nextVertex = otherVertexes[0]
+        for vertex in otherVertexes:
+            tempDistance = util.manhattanDistance(vertex, currentVertex)
+            if tempDistance < leastDistance:
+                nextVertex = vertex
+                leastDistance = tempDistance
+
+        path.append(nextVertex)
+        totalCost += leastDistance
+        currentVertex = nextVertex
+        otherVertexes.remove(nextVertex)
+
 class ClosestDotSearchAgent(SearchAgent):
   "Search for all food using a sequence of searches"
   def registerInitialState(self, state):
