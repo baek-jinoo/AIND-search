@@ -589,8 +589,8 @@ class ClosestDotSearchAgent(SearchAgent):
     walls = gameState.getWalls()
     problem = AnyFoodSearchProblem(gameState)
 
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    heuristic = lambda state, problem: util.manhattanDistance(state, problem.closestFood)
+    return search.aStarSearch(problem, heuristic)
   
 class AnyFoodSearchProblem(PositionSearchProblem):
   """
@@ -617,6 +617,21 @@ class AnyFoodSearchProblem(PositionSearchProblem):
     self.startState = gameState.getPacmanPosition()
     self.costFn = lambda x: 1
     self._visited, self._visitedlist, self._expanded = {}, [], 0
+
+    remainingFoods = self.food.asList()
+
+    if len(remainingFoods) == 0:
+      return True
+
+    distanceToClosestFood = float("inf")
+    closestFood = (-1, -1)
+    for remainingFood in remainingFoods:
+      tempDistance = util.manhattanDistance(self.startState, remainingFood)
+      if tempDistance < distanceToClosestFood:
+        distanceToClosestFood = tempDistance
+        closestFood = remainingFood
+
+    self.closestFood = closestFood
     
   def isGoalState(self, state):
     """
@@ -624,10 +639,10 @@ class AnyFoodSearchProblem(PositionSearchProblem):
     that will complete the problem definition.
     """
     x,y = state
-    
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
 
+    return self.closestFood == state
+
+  
 ##################
 # Mini-contest 1 #
 ##################
